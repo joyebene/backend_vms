@@ -41,7 +41,7 @@ export const getAllVisit = async (req, res) => {
     visit = await Schedule.find().sort({ createdAt: -1 });
 
     // Tag each entry with its form type
-    const taggedVisit = visit.map(v => ({ ...v._doc,  }));
+    const taggedVisit = visit.map(v => ({ ...v._doc, }));
 
     // Combine and sort by creation date
     const allForms = [...taggedVisit].sort(
@@ -53,7 +53,7 @@ export const getAllVisit = async (req, res) => {
     console.error('Error fetching visits:', err);
     res.status(500).json({ error: 'Failed to fetch visits' });
   }
-}; 
+};
 
 export const updateStatus = async (req, res) => {
   const { type, id } = req.params;
@@ -75,26 +75,20 @@ export const updateStatus = async (req, res) => {
     // If approved
     if (status === 'approved') {
       const qrData = `Name: ${doc.firstName} ${doc.lastName}\nEmail: ${doc.email}\nPurpose: ${doc.purpose || 'N/A'}\nID: ${doc._id}`;
-      const qrCodeBase64 = await QRCode.toDataURL(qrData);
-      const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64');
+      const qrCodeBase64 = await QRCode.toDataURL(qrData); // base64 with data:image/png prefix
 
-      const cardBuffer = await generateCard(doc); // should return a PDF Buffer
+      const cardBuffer = await generateCard(doc); // PDF Buffer
 
       await sendEmail({
         to: doc.email,
         subject: 'Your Visit is Approved',
         html: `
-          <p>Dear ${doc.firstName} ${doc.lastName},</p>
-          <p>Your visit has been approved. Please find your visitor card attached.</p>
-          <p>Below is your QR Code (you can present this at the entrance):</p>
-          <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
-        `,
+      <p>Dear ${doc.firstName} ${doc.lastName},</p>
+      <p>Your visit has been approved. Please find your visitor card attached.</p>
+      <p>Below is your QR Code (you can present this at the entrance):</p>
+      <img src="${qrCodeBase64}" alt="QR Code" width="150" height="150" />
+    `,
         attachments: [
-          {
-            filename: 'qr-code.png',
-            content: qrCodeBuffer,
-            cid: 'qrCodeImage',
-          },
           {
             filename: 'visitor-card.pdf',
             content: cardBuffer,
@@ -103,6 +97,7 @@ export const updateStatus = async (req, res) => {
         ],
       });
     }
+
 
     // If cancelled
     if (status === 'cancelled') {
