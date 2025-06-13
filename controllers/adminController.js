@@ -53,11 +53,11 @@ export const getAllVisit = async (req, res) => {
     console.error('Error fetching visits:', err);
     res.status(500).json({ error: 'Failed to fetch visits' });
   }
-};
+}; 
 
 export const updateStatus = async (req, res) => {
   const { type, id } = req.params;
-  const { status } = req.body; // 'approved' or 'cancelled'
+  const { status } = req.body;
 
   if (!['approved', 'cancelled'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status provided' });
@@ -72,15 +72,13 @@ export const updateStatus = async (req, res) => {
       return res.status(404).json({ error: 'Form not found' });
     }
 
-    // If approved, send card and QR code
+    // If approved
     if (status === 'approved') {
       const qrData = `Name: ${doc.firstName} ${doc.lastName}\nEmail: ${doc.email}\nPurpose: ${doc.purpose || 'N/A'}\nID: ${doc._id}`;
       const qrCodeBase64 = await QRCode.toDataURL(qrData);
-      console.log('QR Code Base64:', qrCodeBase64);
-      const card = await generateCard(doc);
-      console.log('PDF Buffer:', card);
+      const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64');
 
-      console.log(doc);
+      const cardBuffer = await generateCard(doc); // should return a PDF Buffer
 
       await sendEmail({
         to: doc.email,
@@ -89,23 +87,32 @@ export const updateStatus = async (req, res) => {
           <p>Dear ${doc.firstName} ${doc.lastName},</p>
           <p>Your visit has been approved. Please find your visitor card attached.</p>
           <p>Below is your QR Code (you can present this at the entrance):</p>
-    
-          <img src="${qrCodeBase64}" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
-
+          <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
         `,
-        // attachments: [{ filename: 'visitor-card.pdf', content: card }],
-        attachments: [{ filename: 'qr-code.png', content: Buffer.from(qrCodeBase64.split(',')[1], 'base64') }]
-
+        attachments: [
+          {
+            filename: 'qr-code.png',
+            content: qrCodeBuffer,
+            cid: 'qrCodeImage',
+          },
+          {
+            filename: 'visitor-card.pdf',
+            content: cardBuffer,
+            contentType: 'application/pdf',
+          },
+        ],
       });
-      // <img src="${qrCodeBase64}" alt="QR Code" style="width:150px; height:150px;" />
     }
 
-    // If cancelled, just send notification
+    // If cancelled
     if (status === 'cancelled') {
       await sendEmail({
         to: doc.email,
         subject: 'Your Visit Request Was Rejected',
-        html: `<p>Dear ${doc.firstName} ${doc.lastName},</p><p>We regret to inform you that your visit has been rejected.</p>`,
+        html: `
+          <p>Dear ${doc.firstName} ${doc.lastName},</p>
+          <p>We regret to inform you that your visit has been rejected.</p>
+        `,
       });
     }
 
@@ -113,7 +120,7 @@ export const updateStatus = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+}
 
 
 export const updateAdminConfig = async (req, res) => {
