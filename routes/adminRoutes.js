@@ -12,7 +12,7 @@ import {
     updateStatus,
     editForm,
     scheduleVisit,
-    getAllVisitorHistory
+    getAllVisitHistory
 } from '../controllers/adminController.js';
 
 const router = express.Router();
