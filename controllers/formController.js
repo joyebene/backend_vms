@@ -35,7 +35,57 @@ export const submitVisitorForm = async (req, res) => {
 export const submitContractorForm = async (req, res) => {
     try {
 
-        const contractor = await Contractor.create(req.body);
+    const { files = [] } = req; // uploaded documents via multer
+    const {
+      firstName,
+      lastName,
+      phone,
+      email,
+      visitorCategory,
+      siteLocation,
+      department,
+      hostEmployee,
+      meetingLocation,
+      visitStartDate,
+      visitEndDate,
+      purpose,
+      agreed,
+      hazards,
+      ppe,
+    } = req.body;
+
+    // Parse stringified fields
+    const parsedHazards = typeof hazards === 'string' ? JSON.parse(hazards) : hazards;
+    const parsedPPE = typeof ppe === 'string' ? JSON.parse(ppe) : ppe;
+
+    // Build document array
+    const uploadedDocuments = files.map((file) => ({
+      name: file.originalname,
+      url: `/uploads/${file.filename}`,
+      type: file.mimetype,
+      uploadedAt: new Date().toISOString(),
+    }));
+
+    const contractorData = {
+      firstName,
+      lastName,
+      phone,
+      email,
+      visitorCategory,
+      siteLocation,
+      department,
+      hostEmployee,
+      meetingLocation,
+      visitStartDate,
+      visitEndDate,
+      purpose,
+      agreed,
+      hazards: parsedHazards,
+      ppe: parsedPPE,
+      documents: uploadedDocuments,
+    };
+
+        const contractor = await Contractor.create(contractorData);
 
         await sendEmail({
             to: contractor.email,
