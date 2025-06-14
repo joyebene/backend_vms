@@ -6,6 +6,7 @@ import {
     getDashboardData,
     checkOutVisitor,
     exportVisitorsToExcel,
+    getFormById
     getAllForms,
     getAllVisit,
     updateStatus,
