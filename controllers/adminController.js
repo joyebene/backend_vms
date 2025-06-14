@@ -300,3 +300,33 @@ export const scheduleVisit = async (req, res) => {
 
 
 };
+
+
+export const getAllVisitHistory = async (req, res) => {
+  try {
+    // Fetch all visitors and contractors
+    const visitors = await Visitor.find().sort({ createdAt: -1 });
+    const contractors = await Contractor.find().sort({ createdAt: -1 });
+
+    // Tag each record
+    const taggedVisitors = visitors.map(v => ({
+      ...v._doc,
+      formType: 'visitor',
+    }));
+
+    const taggedContractors = contractors.map(c => ({
+      ...c._doc,
+      formType: 'contractor',
+    }));
+
+    // Combine and sort by creation date (descending)
+    const visitHistory = [...taggedVisitors, ...taggedContractors].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    res.status(200).json(visitHistory);
+  } catch (err) {
+    console.error('Error fetching visit history:', err);
+    res.status(500).json({ error: 'Failed to fetch visit history' });
+  }
+};

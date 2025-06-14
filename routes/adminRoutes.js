@@ -11,7 +11,8 @@ import {
     getAllVisit,
     updateStatus,
     editForm,
-    scheduleVisit
+    scheduleVisit,
+    getAllVisitorHistory
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -28,5 +29,7 @@ router.get('/dashboard', protect, getDashboardData);
 router.post('/visitors/:id/checkout',  checkOutVisitor);
 router.get('/visitors/export', exportVisitorsToExcel);
 router.post('/schedulevisit', scheduleVisit);
+router.get('/visit-history', getAllVisitHistory);
+
 
 export default router;
