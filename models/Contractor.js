@@ -38,6 +38,14 @@ const contractorSchema = new mongoose.Schema({
     "DUST MASK": { type: String, enum: ['Y', 'N'] },
     "FALL ARREST": { type: String, enum: ['Y', 'N'] }
   },
+   documents: [
+    {
+      name: { type: String }, // file name
+      url: { type: String }, // where file is stored (e.g., S3, local, Cloudinary)
+      type: { type: String }, // optional: MIME type like "application/pdf"
+      uploadedAt: { type: Date, default: Date.now },
+    },
+  ],
   status: { type: String, default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });
