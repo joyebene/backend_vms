@@ -17,6 +17,7 @@ const router = express.Router();
 
 
 router.get('/visitors', getAllForms);
+router.get('/visitor/:id', getFormById);
 router.get('/visits', getAllVisit);
 router.patch('/edit/:type/:id', editForm);
 router.patch('/updateStatus/:type/:id', updateStatus);

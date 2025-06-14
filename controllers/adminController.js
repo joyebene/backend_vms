@@ -33,6 +33,31 @@ export const getAllForms = async (req, res) => {
   }
 };
 
+export const getFormById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Try finding the form in Visitors first
+    let form = await Visitor.findById(id);
+    if (form) {
+      return res.status(200).json({ ...form._doc, formType: 'visitor' });
+    }
+
+    // If not found in Visitors, try Contractors
+    form = await Contractor.findById(id);
+    if (form) {
+      return res.status(200).json({ ...form._doc, formType: 'contractor' });
+    }
+
+    // If not found in either, return 404
+    res.status(404).json({ message: 'Form not found' });
+  } catch (err) {
+    console.error('Error fetching form by ID:', err);
+    res.status(500).json({ error: 'Failed to fetch form' });
+  }
+};
+
+
 export const getAllVisit = async (req, res) => {
   try {
 
