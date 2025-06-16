@@ -1,109 +1,50 @@
-// controllers/documentController.js
-import Contractor from '../models/Contractor.js';
+import Contractor from '../models/contractorModel.js';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
 
+// Use disk storage (or switch to cloud like S3 later)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = './uploads/contractors';
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+    const uploadPath = 'uploads/';
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}-${file.originalname}`;
-    cb(null, uniqueName);
+    const ext = path.extname(file.originalname);
+    const filename = `${Date.now()}-${file.originalname}`;
+    cb(null, filename);
   },
 });
 
-export const upload = multer({ storage });
+export const upload = multer({ storage }).single('file');
 
 export const uploadDocument = async (req, res) => {
   try {
-    const { visitorId, documentType, description } = req.body;
-    const file = req.file;
+    const { contractorId, documentType, description } = req.body;
 
-    if (!file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
-    }
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
-    const contractor = await Contractor.findById(visitorId);
-    if (!contractor) {
-      return res.status(404).json({ success: false, message: 'Contractor not found' });
-    }
+    const contractor = await Contractor.findById(contractorId);
+    if (!contractor) return res.status(404).json({ message: 'Contractor not found' });
 
-    const fileUrl = `/uploads/contractors/${file.filename}`;
+    const fileUrl = `/uploads/${req.file.filename}`;
 
-    const document = {
-      name: file.originalname,
+    const newDoc = {
+      name: req.file.originalname,
       url: fileUrl,
-      type: file.mimetype,
+      type: req.file.mimetype,
       uploadedAt: new Date(),
+      description: description || '',
+      documentType: documentType || '',
     };
 
-    contractor.documents.push(document);
+    contractor.documents.push(newDoc);
     await contractor.save();
 
-    res.status(200).json({ success: true, data: document });
+    res.status(200).json(newDoc);
   } catch (err) {
-    console.error('Upload error:', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-};
-
-export const getVisitorDocuments = async (req, res) => {
-  try {
-    const { visitorId } = req.params;
-    const contractor = await Contractor.findById(visitorId);
-
-    if (!contractor) {
-      return res.status(404).json({ success: false, message: 'Contractor not found' });
-    }
-
-    res.status(200).json({ success: true, data: contractor.documents });
-  } catch (err) {
-    console.error('Fetch error:', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-};
-
-export const getDocument = async (req, res) => {
-  try {
-    const { documentId } = req.params;
-    const contractor = await Contractor.findOne({ 'documents._id': documentId });
-
-    if (!contractor) {
-      return res.status(404).json({ success: false, message: 'Document not found' });
-    }
-
-    const doc = contractor.documents.id(documentId);
-    res.status(200).json({ success: true, data: doc });
-  } catch (err) {
-    console.error('Get document error:', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-};
-
-export const deleteDocument = async (req, res) => {
-  try {
-    const { documentId } = req.params;
-    const contractor = await Contractor.findOne({ 'documents._id': documentId });
-
-    if (!contractor) {
-      return res.status(404).json({ success: false, message: 'Document not found' });
-    }
-
-    const doc = contractor.documents.id(documentId);
-    const filePath = path.join('./', doc.url);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-    doc.remove();
-    await contractor.save();
-
-    res.status(200).json({ success: true, message: 'Document deleted' });
-  } catch (err) {
-    console.error('Delete error:', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error('Upload failed:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
