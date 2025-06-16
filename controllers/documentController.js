@@ -1,4 +1,4 @@
-import Contractor from '../models/contractorModel.js';
+import Contractor from '../models/Contractor.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
