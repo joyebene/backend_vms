@@ -101,3 +101,23 @@ export const submitContractorForm = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getFormByEmail = async (req, res) => {
+  const { email } = req.body
+  try {
+    const visitor = await Visitor.findOne({ email });
+    if (visitor) {
+      return res.json({ type: 'visitor', data: visitor });
+    }
+
+    const contractor = await Contractor.findOne({ email });
+    if (contractor) {
+      return res.json({ type: 'contractor', data: contractor });
+    }
+
+    return res.status(404).json({ message: 'No form found for this email' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
