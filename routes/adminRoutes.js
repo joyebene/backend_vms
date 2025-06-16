@@ -30,7 +30,7 @@ router.get('/dashboard', protect, getDashboardData);
 router.post('/visitors/:id/checkout',  checkOutVisitor);
 router.get('/visitors/export', exportVisitorsToExcel);
 router.post('/schedulevisit', scheduleVisit);
-router.get('/qr/:id', generateVisitorQr);
+router.get('/qr/:id', generateQrCode);
 router.get('/validate-qr', validateQrCode);
 
 export default router;
