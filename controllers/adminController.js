@@ -118,29 +118,31 @@ export const updateStatus = async (req, res) => {
 
   const cardBuffer = await generateCard(doc); // PDF visitor card
 
-  await sendEmail({
-    to: doc.email,
-    subject: 'Your Visit is Approved',
-    html: `
-      <p>Dear ${doc.firstName} ${doc.lastName},</p>
-      <p>Your visit has been approved. Please find your visitor card attached.</p>
-      <p>Present this QR Code at the entrance:</p>
-      <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
-    `,
-    attachments: [
-      {
-        filename: 'qr-code.png',
-        content: qrCodeBuffer,
-        cid: 'qrCodeImage', // this is what <img src="cid:qrCodeImage" /> refers to
-        contentType: 'image/png',
-      },
-      {
-        filename: 'visitor-card.pdf',
-        content: cardBuffer,
-        contentType: 'application/pdf',
-      },
-    ],
-  });
+ await sendEmail({
+  to: doc.email,
+  subject: 'Your Visit is Approved',
+  html: `
+    <p>Dear ${doc.firstName} ${doc.lastName},</p>
+    <p>Your visit has been approved. Please find your visitor card attached.</p>
+    <p>Present this QR Code at the entrance:</p>
+    <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
+  `,
+  attachments: [
+    {
+      filename: 'qr-code.png',
+      content: qrCodeBuffer.toString('base64'),
+      cid: 'qrCodeImage',
+      encoding: 'base64',
+      contentType: 'image/png',
+    },
+    {
+      filename: 'visitor-card.pdf',
+      content: cardBuffer,
+      contentType: 'application/pdf',
+    },
+  ],
+});
+
 }
 
     // If cancelled
