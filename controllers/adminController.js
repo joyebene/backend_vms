@@ -99,36 +99,49 @@ export const updateStatus = async (req, res) => {
     }
 
     // If approved
-    if (status === 'approved') {
-      const qrData = `Name: ${doc.firstName} ${doc.lastName}\nEmail: ${doc.email}\nPurpose: ${doc.purpose || 'N/A'}\nID: ${doc._id}`;
-      const qrCodeBase64 = await QRCode.toDataURL(qrData);
-      const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64');
+   if (status === 'approved') {
+  const qrPayload = {
+    id: doc._id,
+    name: `${doc.firstName} ${doc.lastName}`,
+    email: doc.email,
+    phone: doc.phone,
+    visitorCategory: doc.visitorCategory || 'visitor',
+    purpose: doc.purpose || doc.reason || 'N/A',
+    siteLocation: doc.siteLocation || 'N/A',
+    status: doc.status || 'pending',
+  };
 
-      const cardBuffer = await generateCard(doc); // should return a PDF Buffer
+  const qrData = JSON.stringify(qrPayload); // more structured than plain text
 
-      await sendEmail({
-        to: doc.email,
-        subject: 'Your Visit is Approved',
-        html: `
-          <p>Dear ${doc.firstName} ${doc.lastName},</p>
-          <p>Your visit has been approved. Please find your visitor card attached.</p>
-          <p>Below is your QR Code (you can present this at the entrance):</p>
-          <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
-        `,
-        attachments: [
-          {
-            filename: 'qr-code.png',
-            content: qrCodeBuffer,
-            cid: 'qrCodeImage',
-          },
-          {
-            filename: 'visitor-card.pdf',
-            content: cardBuffer,
-            contentType: 'application/pdf',
-          },
-        ],
-      });
-    }
+  const qrCodeBase64 = await QRCode.toDataURL(qrData); // base64 image string
+  const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64'); // convert to binary buffer
+
+  const cardBuffer = await generateCard(doc); // PDF visitor card
+
+  await sendEmail({
+    to: doc.email,
+    subject: 'Your Visit is Approved',
+    html: `
+      <p>Dear ${doc.firstName} ${doc.lastName},</p>
+      <p>Your visit has been approved. Please find your visitor card attached.</p>
+      <p>Present this QR Code at the entrance:</p>
+      <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
+    `,
+    attachments: [
+      {
+        filename: 'qr-code.png',
+        content: qrCodeBuffer,
+        cid: 'qrCodeImage', // this is what <img src="cid:qrCodeImage" /> refers to
+        contentType: 'image/png',
+      },
+      {
+        filename: 'visitor-card.pdf',
+        content: cardBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
+  });
+}
 
     // If cancelled
     if (status === 'cancelled') {
