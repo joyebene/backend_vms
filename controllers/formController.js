@@ -34,8 +34,6 @@ export const submitVisitorForm = async (req, res) => {
 
 export const submitContractorForm = async (req, res) => {
     try {
-
-    const { files = [] } = req; // uploaded documents via multer
     const {
       firstName,
       lastName,
@@ -58,14 +56,6 @@ export const submitContractorForm = async (req, res) => {
     const parsedHazards = typeof hazards === 'string' ? JSON.parse(hazards) : hazards;
     const parsedPPE = typeof ppe === 'string' ? JSON.parse(ppe) : ppe;
 
-    // Build document array
-    const uploadedDocuments = files.map((file) => ({
-      name: file.originalname,
-      url: `/uploads/${file.filename}`,
-      type: file.mimetype,
-      uploadedAt: new Date().toISOString(),
-    }));
-
     const contractorData = {
       firstName,
       lastName,
@@ -82,7 +72,6 @@ export const submitContractorForm = async (req, res) => {
       agreed,
       hazards: parsedHazards,
       ppe: parsedPPE,
-      documents: uploadedDocuments,
     };
 
         const contractor = await Contractor.create(contractorData);
