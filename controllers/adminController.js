@@ -66,7 +66,7 @@ export const getAllVisit = async (req, res) => {
     visit = await Schedule.find().sort({ createdAt: -1 });
 
     // Tag each entry with its form type
-    const taggedVisit = visit.map(v => ({ ...v._doc, }));
+    const taggedVisit = visit.map(v => ({ ...v._doc,  }));
 
     // Combine and sort by creation date
     const allForms = [...taggedVisit].sort(
@@ -79,6 +79,7 @@ export const getAllVisit = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch visits' });
   }
 };
+
 
 export const updateStatus = async (req, res) => {
   const { type, id } = req.params;
@@ -100,20 +101,26 @@ export const updateStatus = async (req, res) => {
     // If approved
     if (status === 'approved') {
       const qrData = `Name: ${doc.firstName} ${doc.lastName}\nEmail: ${doc.email}\nPurpose: ${doc.purpose || 'N/A'}\nID: ${doc._id}`;
-      const qrCodeBase64 = await QRCode.toDataURL(qrData); // base64 with data:image/png prefix
+      const qrCodeBase64 = await QRCode.toDataURL(qrData);
+      const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64');
 
-      const cardBuffer = await generateCard(doc); // PDF Buffer
+      const cardBuffer = await generateCard(doc); // should return a PDF Buffer
 
       await sendEmail({
         to: doc.email,
         subject: 'Your Visit is Approved',
         html: `
-      <p>Dear ${doc.firstName} ${doc.lastName},</p>
-      <p>Your visit has been approved. Please find your visitor card attached.</p>
-      <p>Below is your QR Code (you can present this at the entrance):</p>
-      <img src="${qrCodeBase64}" alt="QR Code" width="150" height="150" />
-    `,
+          <p>Dear ${doc.firstName} ${doc.lastName},</p>
+          <p>Your visit has been approved. Please find your visitor card attached.</p>
+          <p>Below is your QR Code (you can present this at the entrance):</p>
+          <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
+        `,
         attachments: [
+          {
+            filename: 'qr-code.png',
+            content: qrCodeBuffer,
+            cid: 'qrCodeImage',
+          },
           {
             filename: 'visitor-card.pdf',
             content: cardBuffer,
@@ -122,7 +129,6 @@ export const updateStatus = async (req, res) => {
         ],
       });
     }
-
 
     // If cancelled
     if (status === 'cancelled') {
@@ -302,31 +308,102 @@ export const scheduleVisit = async (req, res) => {
 };
 
 
-export const getAllVisitHistory = async (req, res) => {
+export const generateQrCode = async (req, res) => {
   try {
-    // Fetch all visitors and contractors
-    const visitors = await Visitor.find().sort({ createdAt: -1 });
-    const contractors = await Contractor.find().sort({ createdAt: -1 });
+    const { id } = req.params;
 
-    // Tag each record
-    const taggedVisitors = visitors.map(v => ({
-      ...v._doc,
-      formType: 'visitor',
-    }));
+    // Try to find in Visitor model
+    let doc = await Visitor.findById(id);
+    let visitorCategory = 'visitor';
 
-    const taggedContractors = contractors.map(c => ({
-      ...c._doc,
-      formType: 'contractor',
-    }));
+    // If not found in Visitor, check Contractor
+    if (!doc) {
+      doc = await Contractor.findById(id);
+      visitorCategory = 'contractor';
+    }
 
-    // Combine and sort by creation date (descending)
-    const visitHistory = [...taggedVisitors, ...taggedContractors].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+    if (!doc) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-    res.status(200).json(visitHistory);
+    const payload = {
+      id: doc._id,
+      name: `${doc.firstName} ${doc.lastName}`,
+      email: doc.email,
+      phone: doc.phone,
+      visitorCategory,
+      purpose: doc.purpose || doc.reason || 'N/A',
+      siteLocation: doc.siteLocation || 'N/A',
+      status: doc.status || 'pending',
+    };
+
+    const qrString = JSON.stringify(payload);
+    const qrCode = await QRCode.toDataURL(qrString); // returns a base64 PNG
+
+    res.status(200).json({
+      success: true,
+      data: {
+        qrCode,   // base64 QR image
+        payload   // useful for previewing or verification
+      },
+    });
   } catch (err) {
-    console.error('Error fetching visit history:', err);
-    res.status(500).json({ error: 'Failed to fetch visit history' });
+    console.error('QR generation error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+export const validateQrCode = async (req, res) => {
+  try {
+    const { qrData } = req.body;
+
+    if (!qrData) {
+      return res.status(400).json({ success: false, message: 'QR data not provided' });
+    }
+
+    // Parse QR code JSON payload
+    let parsedData;
+    try {
+      parsedData = JSON.parse(qrData);
+    } catch (error) {
+      return res.status(400).json({ success: false, message: 'Invalid QR data format' });
+    }
+
+    const { id, visitorCategory } = parsedData;
+
+    let person;
+
+    if (visitorCategory === 'visitor') {
+      person = await Visitor.findById(id);
+    } else if (visitorCategory === 'contractor') {
+      person = await Contractor.findById(id);
+    } else {
+      return res.status(400).json({ success: false, message: 'Unknown role in QR data' });
+    }
+
+    if (!person) {
+      return res.status(404).json({ success: false, message: 'Record not found' });
+    }
+
+    if (person.status !== 'approved') {
+      return res.status(403).json({ success: false, message: 'Access denied: Not approved yet' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Access granted',
+      data: {
+        name: `${person.firstName} ${person.lastName}`,
+        email: person.email,
+        phone: person.phone,
+        purpose: person.purpose || person.reason || 'N/A',
+        location: person.siteLocation || 'N/A',
+        status: person.status,
+        visitorCategory,
+      }
+    });
+  } catch (err) {
+    console.error('QR validation error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

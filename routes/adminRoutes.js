@@ -6,13 +6,14 @@ import {
     getDashboardData,
     checkOutVisitor,
     exportVisitorsToExcel,
-    getFormById, 
     getAllForms,
+    getFormById,
     getAllVisit,
     updateStatus,
     editForm,
     scheduleVisit,
-    getAllVisitHistory
+    generateQrCode,
+    validateQrCode
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -29,7 +30,7 @@ router.get('/dashboard', protect, getDashboardData);
 router.post('/visitors/:id/checkout',  checkOutVisitor);
 router.get('/visitors/export', exportVisitorsToExcel);
 router.post('/schedulevisit', scheduleVisit);
-router.get('/visit-history', getAllVisitHistory);
-
+router.get('/qr/:id', generateVisitorQr);
+router.get('/validate-qr', validateQrCode);
 
 export default router;
