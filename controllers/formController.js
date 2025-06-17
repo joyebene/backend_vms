@@ -1,6 +1,7 @@
 import Visitor from '../models/Visitor.js';
 import Contractor from '../models/Contractor.js';
 import sendEmail from '../utils/sendEmail.js';
+import Training from '../models/Training.js';
 
 
 export const submitVisitorForm = async (req, res) => {
@@ -120,4 +121,11 @@ export const getFormByEmail = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+
+// Get all trainings
+export const getAllTrainings = async (req, res) => {
+  const trainings = await Training.find();
+  res.json(trainings);
+};
+
 

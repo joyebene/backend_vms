@@ -13,7 +13,8 @@ import {
     editForm,
     scheduleVisit,
     generateQrCode,
-    validateQrCode
+    validateQrCode,
+    createTraining
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -32,5 +33,6 @@ router.get('/visitors/export', exportVisitorsToExcel);
 router.post('/schedulevisit', scheduleVisit);
 router.get('/qr/:id', generateQrCode);
 router.get('/validate-qr', validateQrCode);
+router.post('/training', createTraining);
 
 export default router;

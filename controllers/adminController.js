@@ -1,5 +1,6 @@
 import Visitor from '../models/Visitor.js';
 import Contractor from '../models/Contractor.js';
+import Training from '../models/Training.js'
 import AdminConfig from '../models/AdminConfig.js';
 import Employee from '../models/Employee.js';
 import sendEmail from '../utils/sendEmail.js';
@@ -421,4 +422,10 @@ export const validateQrCode = async (req, res) => {
     console.error('QR validation error:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
+};
+
+// Create training
+export const createTraining = async (req, res) => {
+  const training = await Training.create(req.body);
+  res.status(201).json(training);
 };
