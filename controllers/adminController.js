@@ -437,7 +437,56 @@ export const validateQrCode = async (req, res) => {
 };
 
 // Create training
+
 export const createTraining = async (req, res) => {
-  const training = await Training.create(req.body);
-  res.status(201).json(training);
+  try {
+    const {
+      title,
+      description,
+      type,
+      content,
+      questions,
+      requiredScore,
+      isActive
+    } = req.body;
+
+    if (!title || !description || !type || !content || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: 'Missing required fields or questions.' });
+    }
+
+    // Validate questions
+    for (const question of questions) {
+      if (!question.question || question.options.length !== 4 || typeof question.answer !== 'number') {
+        return res.status(400).json({ error: 'Invalid question format.' });
+      }
+    }
+
+    const newTraining = new Training({
+      title,
+      description,
+      type,
+      content,
+      questions,
+      requiredScore,
+      isActive
+    });
+
+    await newTraining.save();
+    res.status(201).json({ message: 'Training created successfully', training: newTraining });
+  } catch (error) {
+    console.error('Create training error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+// get all trainings
+export const getAllTrainings = async (req, res) => {
+  try {
+    const trainings = await Training.find().sort({ createdAt: -1 }); // newest first
+    res.status(200).json(trainings);
+  } catch (error) {
+    console.error('Error fetching trainings:', error);
+    res.status(500).json({ error: 'Failed to fetch training modules' });
+  }
 };
