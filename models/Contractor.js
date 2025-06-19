@@ -5,6 +5,12 @@ const contractorSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   phone: { type: String, required: true },
   email: { type: String },
+  photo: {
+  url: { type: String },
+  name: { type: String },
+  uploadedAt: { type: Date, default: Date.now }
+},
+
 
   visitorCategory: { type: String, enum: ['contractor', 'visitor'], required: true, default: 'contractor' },
   siteLocation: { type: String, required: true },
