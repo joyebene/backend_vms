@@ -102,14 +102,17 @@ export const updateStatus = async (req, res) => {
     // If approved
     if (status === 'approved') {
       const qrPayload = {
-        id: doc._id,
+        userId: doc._id,                            // Required for verification
+        userType: doc.visitorCategory === 'contractor' ? 'contractor' : 'visitor',
         name: `${doc.firstName} ${doc.lastName}`,
         email: doc.email,
         phone: doc.phone,
-        visitorCategory: doc.visitorCategory || 'visitor',
         purpose: doc.purpose || doc.reason || 'N/A',
         siteLocation: doc.siteLocation || 'N/A',
         status: doc.status || 'pending',
+
+        validUntil: new Date(Date.now() + 5000 * 60 * 60).toISOString(), // 5 hour from now
+        deviceId: "YOUR_GATE_DEVICE_ID", // You must fetch or hardcode the right one
       };
 
       const qrData = JSON.stringify(qrPayload); // more structured than plain text
@@ -125,7 +128,7 @@ export const updateStatus = async (req, res) => {
         html: `
     <p>Dear ${doc.firstName} ${doc.lastName},</p>
     <p>Your visit has been approved. Please find your visitor card attached.</p>
-    <p>Present this QR Code at the entrance:</p>
+    <p>Present this QR Code at the entrance, it will expire in 5 hours:</p>
     <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
   `,
         attachments: [
