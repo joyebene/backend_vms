@@ -271,14 +271,19 @@ export const checkOutVisitor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const visitor = await Visitor.findById(id);
-    if (!visitor) return res.status(404).json({ error: 'Visitor not found' });
+    let visitor = await Visitor.findById(id);
+    if (visitor) return res.status(200).json({ message: 'Visitor checked out successfully', visitor });
+
+    // If visitor not found in Visitor form check contractor form
+    visitor = await Contractor.findById(id);
+    if(visitor) return res.status(200).json({message: 'Visitor checked out successfully', visitor});
 
     visitor.status = 'checked-out';
     visitor.checkOutTime = new Date();
     await visitor.save();
 
-    res.json({ message: 'Visitor checked out successfully', visitor });
+    // If not found in either, return 404
+    res.json({ message: 'Visitor not found'});
   } catch (err) {
     console.error('Error checking out visitor:', err);
     res.status(500).json({ error: 'Failed to check out visitor' });

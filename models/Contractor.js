@@ -11,7 +11,7 @@ const contractorSchema = new mongoose.Schema({
   department: { type: String, required: true },
   hostEmployee: { type: String, required: true },
   meetingLocation: { type: String, required: true },
-
+  checkOutTime: Date,
   visitStartDate: { type: Date, required: false },
   visitEndDate: { type: Date, required: false },
 
