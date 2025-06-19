@@ -8,6 +8,6 @@ const router = express.Router();
 router.post('/visitor', submitVisitorForm);
 router.post('/contractor',  submitContractorForm);
 router.post('/email-lookup', getFormByEmail);
-router.get('/forms/trainigs', getAllTrainings);
+router.get('/forms/trainings', getAllTrainings);
 
 export default router;

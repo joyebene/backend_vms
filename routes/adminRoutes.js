@@ -35,4 +35,5 @@ router.get('/qr/:id', generateQrCode);
 router.get('/validate-qr', validateQrCode);
 router.post('/training', createTraining);
 
+
 export default router;

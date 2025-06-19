@@ -67,7 +67,7 @@ export const getAllVisit = async (req, res) => {
     visit = await Schedule.find().sort({ createdAt: -1 });
 
     // Tag each entry with its form type
-    const taggedVisit = visit.map(v => ({ ...v._doc,  }));
+    const taggedVisit = visit.map(v => ({ ...v._doc, }));
 
     // Combine and sort by creation date
     const allForms = [...taggedVisit].sort(
@@ -100,51 +100,51 @@ export const updateStatus = async (req, res) => {
     }
 
     // If approved
-   if (status === 'approved') {
-  const qrPayload = {
-    id: doc._id,
-    name: `${doc.firstName} ${doc.lastName}`,
-    email: doc.email,
-    phone: doc.phone,
-    visitorCategory: doc.visitorCategory || 'visitor',
-    purpose: doc.purpose || doc.reason || 'N/A',
-    siteLocation: doc.siteLocation || 'N/A',
-    status: doc.status || 'pending',
-  };
+    if (status === 'approved') {
+      const qrPayload = {
+        id: doc._id,
+        name: `${doc.firstName} ${doc.lastName}`,
+        email: doc.email,
+        phone: doc.phone,
+        visitorCategory: doc.visitorCategory || 'visitor',
+        purpose: doc.purpose || doc.reason || 'N/A',
+        siteLocation: doc.siteLocation || 'N/A',
+        status: doc.status || 'pending',
+      };
 
-  const qrData = JSON.stringify(qrPayload); // more structured than plain text
+      const qrData = JSON.stringify(qrPayload); // more structured than plain text
 
-  const qrCodeBase64 = await QRCode.toDataURL(qrData); // base64 image string
-  const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64'); // convert to binary buffer
+      const qrCodeBase64 = await QRCode.toDataURL(qrData); // base64 image string
+      const qrCodeBuffer = Buffer.from(qrCodeBase64.split(',')[1], 'base64'); // convert to binary buffer
 
-  const cardBuffer = await generateCard(doc); // PDF visitor card
+      const cardBuffer = await generateCard(doc); // PDF visitor card
 
- await sendEmail({
-  to: doc.email,
-  subject: 'Your Visit is Approved',
-  html: `
+      await sendEmail({
+        to: doc.email,
+        subject: 'Your Visit is Approved',
+        html: `
     <p>Dear ${doc.firstName} ${doc.lastName},</p>
     <p>Your visit has been approved. Please find your visitor card attached.</p>
     <p>Present this QR Code at the entrance:</p>
     <img src="cid:qrCodeImage" alt="QR Code" width="150" height="150" style="display:block; margin:auto;" />
   `,
-  attachments: [
-    {
-      filename: 'qr-code.png',
-      content: qrCodeBuffer.toString('base64'),
-      cid: 'qrCodeImage',
-      encoding: 'base64',
-      contentType: 'image/png',
-    },
-    {
-      filename: 'visitor-card.pdf',
-      content: cardBuffer,
-      contentType: 'application/pdf',
-    },
-  ],
-});
+        attachments: [
+          {
+            filename: 'qr-code.png',
+            content: qrCodeBuffer.toString('base64'),
+            cid: 'qrCodeImage',
+            encoding: 'base64',
+            contentType: 'image/png',
+          },
+          {
+            filename: 'visitor-card.pdf',
+            content: cardBuffer,
+            contentType: 'application/pdf',
+          },
+        ],
+      });
 
-}
+    }
 
     // If cancelled
     if (status === 'cancelled') {
@@ -271,24 +271,31 @@ export const checkOutVisitor = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Try Visitor collection first
     let visitor = await Visitor.findById(id);
-    if (visitor) return res.status(200).json({ message: 'Visitor checked out successfully', visitor });
+    if (visitor) {
+      visitor.status = 'checked-out';
+      visitor.checkOutTime = new Date();
+      await visitor.save();
+      return res.status(200).json({ message: 'Visitor checked out successfully', visitor });
+    }
 
-    // If visitor not found in Visitor form check contractor form
-    visitor = await Contractor.findById(id);
-    if(visitor) return res.status(200).json({message: 'Visitor checked out successfully', visitor});
+    // Then try Contractor collection
+    let contractor = await Contractor.findById(id);
+    if (contractor) {
+      contractor.status = 'checked-out';
+      contractor.checkOutTime = new Date();
+      await contractor.save();
+      return res.status(200).json({ message: 'Contractor checked out successfully', visitor: contractor });
+    }
 
-    visitor.status = 'checked-out';
-    visitor.checkOutTime = new Date();
-    await visitor.save();
-
-    // If not found in either, return 404
-    res.json({ message: 'Visitor not found'});
+    // If neither found
+    res.status(404).json({ message: 'Visitor not found' });
   } catch (err) {
     console.error('Error checking out visitor:', err);
     res.status(500).json({ error: 'Failed to check out visitor' });
   }
-}
+};
 
 export const scheduleVisit = async (req, res) => {
 
