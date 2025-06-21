@@ -4,8 +4,9 @@ import cors from "cors";
 import formRoutes from './routes/formRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import connectDB from './config/db.js'
-import deviceRoutes from './routes/deviceRoutes.js'
+import connectDB from './config/db.js';
+import deviceRoutes from './routes/deviceRoutes.js';
+import trainingRoutes from "./routes/trainingRoutes.js";
 
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/forms', formRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/devices', deviceRoutes);
+app.use('/api', trainingRoutes);
 
 
 

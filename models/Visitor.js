@@ -15,6 +15,7 @@ const visitorSchema = new mongoose.Schema({
     purpose: String,
     agreed: String,
     checkOutTime: Date,
+    checkInTime: Date,
     status: { type: String, default: 'pending' },
     createdAt: { type: Date, default: Date.now }
 });

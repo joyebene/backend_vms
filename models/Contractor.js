@@ -18,8 +18,11 @@ const contractorSchema = new mongoose.Schema({
   hostEmployee: { type: String, required: true },
   meetingLocation: { type: String, required: true },
   checkOutTime: Date,
+  checkInTime: Date,
   visitStartDate: { type: Date, required: false },
   visitEndDate: { type: Date, required: false },
+
+  trainingCompleted: Boolean,
 
   purpose: { type: String, required: true },
   agreed: String,

@@ -270,6 +270,35 @@ export const exportVisitorsToExcel = async (req, res) => {
   }
 };
 
+export const checkInVisitor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Try Visitor collection first
+    let visitor = await Visitor.findById(id);
+    if (visitor) {
+      visitor.status = 'checked-in';
+      visitor.checkInTime = new Date();
+      await visitor.save();
+      return res.status(200).json({ message: 'Visitor checked in successfully', visitor });
+    }
+
+    // Then try Contractor collection
+    let contractor = await Contractor.findById(id);
+    if (contractor) {
+      contractor.status = 'checked-in';
+      contractor.checkInTime = new Date();
+      await contractor.save();
+      return res.status(200).json({ message: 'Contractor checked in successfully', visitor: contractor });
+    }
+
+    // If neither found
+    res.status(404).json({ message: 'Visitor not found' });
+  } catch (err) {
+    console.error('Error checking out visitor:', err);
+    res.status(500).json({ error: 'Failed to check out visitor' });
+  }
+};
 export const checkOutVisitor = async (req, res) => {
   try {
     const { id } = req.params;
