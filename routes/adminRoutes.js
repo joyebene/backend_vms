@@ -41,5 +41,21 @@ router.post('/create-training', createTraining);
 router.get('/trainings', getAllTrainings);
 router.post('/visitors/:visitorId/documents', addDocumentToVisitor);
 
+// routes/documents.js or similar
+// Express backend example
+router.delete('/documents', async (req, res) => {
+  const { name } = req.query;
+  if (!name) return res.status(400).send('Name is required');
+
+  try {
+    const deleted = await Document.findOneAndDelete({ name });
+    if (!deleted) return res.status(404).send('Document not found');
+    res.status(200).send('Deleted successfully');
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
+
+
 
 export default router;
