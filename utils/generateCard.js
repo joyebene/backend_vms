@@ -27,7 +27,7 @@ ID: ${data._id}`;
     doc.text(`Email: ${data.email}`);
     doc.text(`Department: ${data.department || 'N/A'}`);
     doc.text(`Purpose: ${data.purpose || 'N/A'}`);
-    doc.text(`Meeting With: ${data.employeeToMeet || 'N/A'}`);
+    doc.text(`Meeting With: ${data.hostEmployee || 'N/A'}`);
     doc.text(`Visit ID: ${data._id}`);
     doc.moveDown();
 

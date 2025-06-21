@@ -94,7 +94,6 @@ export const updateStatus = async (req, res) => {
 
   try {
     const doc = await Model.findByIdAndUpdate(id, { status }, { new: true });
-
     if (!doc) {
       return res.status(404).json({ error: 'Form not found' });
     }
