@@ -1,6 +1,6 @@
 import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
-import getStream from 'get-stream';
+import { buffer } from 'get-stream';
 
 const generateCard = async (data) => {
   try {
@@ -40,7 +40,9 @@ ID: ${data._id}`;
 
     // Finalize and convert stream to buffer
     doc.end();
-    return await getStream.buffer(doc);
+    // return await getStream.buffer(doc);
+    return await buffer(doc);
+
 
   } catch (error) {
     console.error('Error generating visitor card:', error.message);
