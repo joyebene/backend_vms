@@ -16,7 +16,8 @@ import {
     generateQrCode,
     validateQrCode,
     createTraining,
-    getAllTrainings
+    getAllTrainings,
+    addDocumentToVisitor
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -38,6 +39,7 @@ router.get('/qr/:id', generateQrCode);
 router.get('/validate-qr', validateQrCode);
 router.post('/create-training', createTraining);
 router.get('/trainings', getAllTrainings);
+router.post('/visitors/:visitorId/documents', addDocumentToVisitor);
 
 
 export default router;

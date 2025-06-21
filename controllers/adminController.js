@@ -521,3 +521,26 @@ export const getAllTrainings = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch training modules' });
   }
 };
+
+
+
+export const addDocumentToVisitor = async (req, res) => {
+  const { visitorId } = req.params;
+  const document = req.body;
+
+  try {
+    const visitor = await Contractor.findById(visitorId);
+    if (!visitor) {
+      return res.status(404).json({ message: "Visitor not found" });
+    }
+
+    visitor.documents.push(document);
+    await visitor.save();
+
+    res.status(200).json({ message: "Document added successfully", document });
+  } catch (error) {
+    console.error("Error adding document:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
