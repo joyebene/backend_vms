@@ -17,8 +17,8 @@ videos: [{
   url: { type: String, required: false }
 }],
 books: [{
-  name: { type: String, required: true },
-  url: { type: String, required: true }
+  name: { type: String, required: false },
+  url: { type: String, required: false }
 }],
 
   requiredScore: { type: Number, default: 70 },

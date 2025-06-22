@@ -477,6 +477,8 @@ export const createTraining = async (req, res) => {
       type,
       content,
       questions,
+      videos,
+      books,
       requiredScore,
       isActive
     } = req.body;
@@ -498,6 +500,8 @@ export const createTraining = async (req, res) => {
       type,
       content,
       questions,
+      videos,
+      books,
       requiredScore,
       isActive
     });
