@@ -1,7 +1,6 @@
 import express from 'express';
 import {
   register,
-  verifyOtp,
   login,
   refreshAccessToken,
   getProfile,
