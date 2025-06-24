@@ -8,6 +8,7 @@ import generateCard from '../utils/generateCard.js';
 import QRCode from 'qrcode';
 import ExcelJS from 'exceljs';
 import Schedule from '../models/Schedule.js';
+import User from '../models/User.js';
 
 export const getAllForms = async (req, res) => {
   try {
@@ -546,5 +547,86 @@ export const addDocumentToVisitor = async (req, res) => {
     console.error("Error adding document:", error);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+
+
+export const getUsers = async (req, res) => {
+  const { role, department, isActive, search } = req.query;
+  const query = {};
+
+  if (role) query.role = role;
+  if (department) query.department = department;
+  if (isActive !== undefined) query.isActive = isActive === 'true';
+  if (search) query.$or = [
+    { name: new RegExp(search, 'i') },
+    { email: new RegExp(search, 'i') }
+  ];
+
+  const users = await User.find(query);
+  res.json(users);
+};
+
+export const createUser = async (req, res) => {
+  const user = new User(req.body);
+  await user.save();
+  res.status(201).json(user);
+};
+
+
+export const getUserById = async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.json(user);
+};
+
+export const updateUser = async (req, res) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.json(user);
+};
+
+export const deleteUser = async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+  res.json({ message: 'User deleted' });
+};
+
+import SystemSetting from '../models/SystemSetting.js';
+
+export const getSystemSettings = async (req, res) => {
+  const settings = await SystemSetting.findOne();
+  res.json(settings);
+};
+
+export const updateSystemSettings = async (req, res) => {
+  const updated = await SystemSetting.findOneAndUpdate({}, req.body.settings, { new: true, upsert: true });
+  res.json({ message: 'Settings updated', settings: updated });
+};
+
+export const getAuditLogs = async (req, res) => {
+  const { startDate, endDate, userId, action } = req.query;
+  const query = {};
+
+  if (startDate) query.createdAt = { ...query.createdAt, $gte: new Date(startDate) };
+  if (endDate) query.createdAt = { ...query.createdAt, $lte: new Date(endDate) };
+  if (userId) query.userId = userId;
+  if (action) query.action = action;
+
+  const logs = await AuditLog.find(query);
+  res.json(logs);
+};
+
+import License from '../models/License.js';
+
+export const getLicenses = async (req, res) => {
+  const licenses = await License.find();
+  res.json(licenses);
+};
+
+export const addLicense = async (req, res) => {
+  const { licenseKey, expiryDate } = req.body;
+  const newLicense = new License({ licenseKey, expiryDate });
+  await newLicense.save();
+  res.status(201).json(newLicense);
 };
 

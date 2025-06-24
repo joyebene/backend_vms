@@ -1,26 +1,46 @@
 import express from 'express';
 import protect from '../middleware/authMiddleware.js';
 import {
-    updateAdminConfig,
-    addEmployee,
-    getDashboardData,
-    checkOutVisitor,
-    checkInVisitor,
-    exportVisitorsToExcel,
-    getAllForms,
-    getFormById,
-    getAllVisit,
-    updateStatus,
-    editForm,
-    scheduleVisit,
-    generateQrCode,
-    validateQrCode,
-    createTraining,
-    getAllTrainings,
-    addDocumentToVisitor
+  updateAdminConfig,
+  addEmployee,
+  getDashboardData,
+  checkOutVisitor,
+  checkInVisitor,
+  exportVisitorsToExcel,
+  getAllForms,
+  getFormById,
+  getAllVisit,
+  updateStatus,
+  editForm,
+  scheduleVisit,
+  generateQrCode,
+  validateQrCode,
+  createTraining,
+  getAllTrainings,
+  addDocumentToVisitor,
+  getUsers, createUser, getUserById, updateUser, deleteUser,
+  getSystemSettings, updateSystemSettings,
+  getAuditLogs, getLicenses, addLicense
 } from '../controllers/adminController.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+
+
+router.get('/users', getUsers);
+router.post('/users', createUser);
+router.get('/users/:id', getUserById);
+router.put('/users/:id', updateUser);
+router.delete('/users/:id', deleteUser);
+
+router.get('/settings', getSystemSettings);
+router.put('/settings', updateSystemSettings);
+
+router.get('/audit-logs', getAuditLogs);
+
+router.get('/licenses', getLicenses);
+router.post('/licenses', addLicense);
 
 
 router.get('/visitors', getAllForms);
@@ -31,8 +51,8 @@ router.patch('/updateStatus/:type/:id', updateStatus);
 router.put('/config', protect, updateAdminConfig);
 router.post('/employees', protect, addEmployee);
 router.get('/dashboard', protect, getDashboardData);
-router.post('/visitors/:id/checkout',  checkOutVisitor);
-router.post('/visitors/:id/check-in',  checkInVisitor);
+router.post('/visitors/:id/checkout', checkOutVisitor);
+router.post('/visitors/:id/check-in', checkInVisitor);
 router.get('/visitors/export', exportVisitorsToExcel);
 router.post('/schedulevisit', scheduleVisit);
 router.get('/qr/:id', generateQrCode);

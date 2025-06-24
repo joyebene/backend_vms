@@ -1,21 +1,115 @@
-import Admin from '../models/Admin.js';
+import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import sendEmail from '../utils/sendEmail.js';
 
-const generateToken = (id) => {
-    jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+const createAccessToken = (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+const createRefreshToken = (id) => jwt.sign({ id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+export const register = async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+
+  const existing = await User.findOne({ email });
+  if (existing) return res.status(400).json({ error: 'Email already exists' });
+
+  const hashed = await bcrypt.hash(password, 12);
+  
+  const user = await User.create({
+    email, password: hashed, firstName, lastName,
+  });
+
+
+  res.status(201).json({ message: 'User registered.' });
 };
 
-export const login = async (req, res) => {
-    const { username, password } = req.body;
-    const admin = await Admin.findOne({username});
 
-    if(admin && (await admin.matchPassword(password))){
-        res.json({
-            _id: admin._id,
-            username: admin.username,
-            token: generateToken(admin._id),
-        });
-    } else {
-        res.status(401).json({error: "Invalid credentials"});
-    }
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !(await bcrypt.compare(password, user.password)))
+    return res.status(400).json({ error: 'Invalid email or password' });
+
+  const accessToken = createAccessToken(user._id);
+  const refreshToken = createRefreshToken(user._id);
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  res.json({
+    userId: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    accessToken,
+    refreshToken
+  });
+};
+
+export const refreshAccessToken = async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) return res.status(401).json({ error: 'Missing refresh token' });
+
+  try {
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user || user.refreshToken !== refreshToken)
+      return res.status(403).json({ error: 'Invalid refresh token' });
+
+    const newAccessToken = createAccessToken(user._id);
+    res.json({ accessToken: newAccessToken });
+  } catch {
+    res.status(403).json({ error: 'Expired or invalid refresh token' });
+  }
+};
+
+export const getProfile = async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const token = crypto.randomBytes(32).toString('hex');
+  user.resetToken = token;
+  user.resetTokenExpiry = Date.now() + 1000 * 60 * 15; // 15 mins
+  await user.save();
+
+  await sendEmail(email, 'Reset Password', `Reset your password using token: ${token}`);
+  res.json({ message: 'Reset token sent to email' });
+};
+
+export const resetPassword = async (req, res) => {
+  const { resetToken, newPassword } = req.body;
+  const user = await User.findOne({
+    resetToken,
+    resetTokenExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+
+  user.password = await bcrypt.hash(newPassword, 12);
+  user.resetToken = null;
+  user.resetTokenExpiry = null;
+  await user.save();
+
+  res.json({ message: 'Password reset successful' });
+};
+
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await User.findById(req.user.id);
+  if (!user || !(await bcrypt.compare(currentPassword, user.password)))
+    return res.status(400).json({ error: 'Current password is incorrect' });
+
+  user.password = await bcrypt.hash(newPassword, 12);
+  await user.save();
+  res.json({ message: 'Password changed successfully' });
 };
