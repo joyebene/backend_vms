@@ -23,8 +23,7 @@ export const register = async (req, res) => {
     email, password: hashed, firstName, lastName,
   });
 
-
-  res.status(201).json({ message: 'User registered.' });
+  res.status(201).json({ message: 'User registered.', data: user });
 };
 
 
