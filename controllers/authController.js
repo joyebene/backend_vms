@@ -39,7 +39,6 @@ export const register = async (req, res) => {
     const {
       email,
       password,
-      confirmPassword,
       firstName,
       lastName,
       phoneNumber,
@@ -51,7 +50,6 @@ export const register = async (req, res) => {
     if (
       !email ||
       !password ||
-      !confirmPassword ||
       !firstName ||
       !lastName ||
       !phoneNumber ||
@@ -59,11 +57,6 @@ export const register = async (req, res) => {
       !role
     ) {
       return res.status(400).json({ error: 'All fields are required.' });
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'Passwords do not match.' });
     }
 
     // Check if user already exists
