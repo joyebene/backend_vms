@@ -28,26 +28,32 @@ export const register = async (req, res) => {
 
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !(await bcrypt.compare(password, user.password)))
-    return res.status(400).json({ error: 'Invalid email or password' });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password)))
+      return res.status(400).json({ error: 'Invalid email or password' });
 
-  const accessToken = createAccessToken(user._id);
-  const refreshToken = createRefreshToken(user._id);
-  user.refreshToken = refreshToken;
-  await user.save();
+    const accessToken = createAccessToken(user._id);
+    const refreshToken = createRefreshToken(user._id);
+    user.refreshToken = refreshToken;
+    await user.save();
 
-  res.json({
-    userId: user._id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role,
-    accessToken,
-    refreshToken
-  });
+    res.json({
+      userId: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      accessToken,
+      refreshToken
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error during login' });
+  }
 };
+
 
 export const refreshAccessToken = async (req, res) => {
   const { refreshToken } = req.body;
