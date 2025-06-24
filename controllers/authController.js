@@ -8,8 +8,16 @@ import sendEmail from '../utils/sendEmail.js';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-const createAccessToken = (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
-const createRefreshToken = (id) => jwt.sign({ id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+const createAccessToken = (id) => {
+  if (!JWT_SECRET) throw new Error("Missing JWT_SECRET");
+  return jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+};
+
+const createRefreshToken = (id) => {
+  if (!JWT_REFRESH_SECRET) throw new Error("Missing JWT_REFRESH_SECRET");
+  return jwt.sign({ id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+};
+
 
 export const register = async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
@@ -18,7 +26,7 @@ export const register = async (req, res) => {
   if (existing) return res.status(400).json({ error: 'Email already exists' });
 
   const hashed = await bcrypt.hash(password, 12);
-  
+
   const user = await User.create({
     email, password: hashed, firstName, lastName,
   });
@@ -34,8 +42,15 @@ export const login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res.status(400).json({ error: 'Invalid email or password' });
 
-    const accessToken = createAccessToken(user._id);
-    const refreshToken = createRefreshToken(user._id);
+    let accessToken, refreshToken;
+    try {
+      accessToken = createAccessToken(user._id);
+      refreshToken = createRefreshToken(user._id);
+    } catch (err) {
+      console.error("JWT generation error:", err);
+      return res.status(500).json({ error: "Token generation failed" });
+    }
+
     user.refreshToken = refreshToken;
     await user.save();
 
