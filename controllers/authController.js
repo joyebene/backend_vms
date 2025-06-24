@@ -55,6 +55,7 @@ export const register = async (req, res) => {
       !firstName ||
       !lastName ||
       !phoneNumber ||
+      !department ||
       !role
     ) {
       return res.status(400).json({ error: 'All fields are required.' });
@@ -112,7 +113,7 @@ export const login = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    return res.status(201).json({message: "User Logged in Successfully", data: user  });
+    return res.status(201).json({ message: "User Logged in Successfully", data: user });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Server error during login' });
