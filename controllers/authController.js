@@ -9,9 +9,23 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 
-const createAccessToken = (id) => {
+// const createAccessToken = (id) => {
+//   if (!JWT_SECRET) throw new Error("Missing JWT_SECRET");
+//   return jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+// };
+
+   const createAccessToken = (id) => {
   if (!JWT_SECRET) throw new Error("Missing JWT_SECRET");
-  return jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+  console.log("Creating access token for ID:", id);
+  console.log("Using JWT_SECRET:", JWT_SECRET);
+  try {
+    const token = jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+    console.log("Generated access token:", token);
+    return token;
+  } catch (err) {
+    console.error("JWT sign error:", err);
+    throw err;
+  }
 };
 
 const createRefreshToken = (id) => {
