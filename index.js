@@ -7,7 +7,6 @@ import authRoutes from './routes/authRoutes.js';
 import connectDB from './config/db.js';
 import deviceRoutes from './routes/deviceRoutes.js';
 import trainingRoutes from "./routes/trainingRoutes.js";
-import bodyParser from "body-parser"
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -15,22 +14,20 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 connectDB();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true // if you're sending cookies or auth headers
-}));
+// ✅ Correct middleware order
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
-
+// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/forms', formRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/devices', deviceRoutes);
 app.use('/api', trainingRoutes);
 
-
-
-app.listen(PORT, () => console.log(`Server running at port ${PORT}`))
+// ✅ Server
+app.listen(PORT, () => console.log(`Server running at port ${PORT}`));

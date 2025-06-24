@@ -35,21 +35,62 @@ const createRefreshToken = (id) => {
 
 
 export const register = async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName, phoneNumber, role, department } = req.body;
+  try {
+    const {
+      email,
+      password,
+      confirmPassword,
+      firstName,
+      lastName,
+      phoneNumber,
+      role,
+      department,
+    } = req.body;
 
-  const existing = await User.findOne({ email });
-  if (existing) return res.status(400).json({ error: 'Email already exists' });
+    // Validate required fields
+    if (
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !firstName ||
+      !lastName ||
+      !phoneNumber ||
+      !role
+    ) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
 
-  const hashed = await bcrypt.hash(password, 12);
-  const confirmHashed = await bcrypt.hash(confirmPassword, 12);
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match.' });
+    }
 
-  const user = await User.create({
-    email, password: hashed, confirmPassword: confirmHashed, firstName, lastName, phoneNumber, role, department
-  });
+    // Check if user already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ error: 'Email already exists.' });
+    }
 
-  res.status(201).json({ message: 'User registered.', data: user });
+    // Hash password
+    const hashed = await bcrypt.hash(password, 12);
+
+    // Create user
+    const user = await User.create({
+      email,
+      password: hashed,
+      firstName,
+      lastName,
+      phoneNumber,
+      role,
+      department,
+    });
+
+    res.status(201).json({ message: 'User registered.', data: user });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ error: 'Server error. Please try again.' });
+  }
 };
-
 
 export const login = async (req, res) => {
   try {
