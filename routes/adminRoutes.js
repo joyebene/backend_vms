@@ -25,7 +25,7 @@ import {
 import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
+router.use(authenticate);
 
 
 router.get('/users', getUsers);
