@@ -7,7 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import connectDB from './config/db.js';
 import deviceRoutes from './routes/deviceRoutes.js';
 import trainingRoutes from "./routes/trainingRoutes.js";
-import analyticsRoutes from './routes/analyticsRoutes.js';
+import analyticsRoutes from "./routes/analyticsRoutes.js"
 
 
 dotenv.config();
