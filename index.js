@@ -7,6 +7,8 @@ import authRoutes from './routes/authRoutes.js';
 import connectDB from './config/db.js';
 import deviceRoutes from './routes/deviceRoutes.js';
 import trainingRoutes from "./routes/trainingRoutes.js";
+import analyticsRoutes from './routes/analyticsRoutes.js';
+
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +30,7 @@ app.use('/api/forms', formRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/devices', deviceRoutes);
 app.use('/api', trainingRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // ✅ Server
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
