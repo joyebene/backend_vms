@@ -6,7 +6,7 @@ import sendEmail from '../utils/sendEmail.js';
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'L3gZs1NJI_etZXqb8S5FV5Y_Jyn7Rl6xOND26mw0Yz_N35_AXM0WS39750AOQKUE';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'L3gZs1NJI_etZXqb8S5FV5Y_Jyn7Rl6xOND26mw0Yz_N35_AXM0WS39750AOQKUE';
 
 
 // const createAccessToken = (id) => {
