@@ -8,6 +8,7 @@ import sendEmail from '../utils/sendEmail.js';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
+
 const createAccessToken = (id) => {
   if (!JWT_SECRET) throw new Error("Missing JWT_SECRET");
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
@@ -37,6 +38,8 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    console.log(JWT_SECRET);
+    
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password)))
