@@ -214,6 +214,36 @@ export const editForm = async (req, res) => {
   }
 };
 
+export const getByHost = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { type = 'visitor', status, startDate, endDate } = req.query;
+
+    if (!['visitor', 'contractor'].includes(type)) {
+      return res.status(400).json({ error: 'Invalid type' });
+    }
+
+    const query = { host: userId };
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) query.createdAt.$gte = new Date(startDate);
+      if (endDate) query.createdAt.$lte = new Date(endDate);
+    }
+
+    const Model = type === 'visitor' ? Visitor : Contractor;
+    const results = await Model.find(query).sort({ createdAt: -1 });
+
+    res.json(results);
+  } catch (err) {
+    console.error('Get by host error:', err);
+    res.status(500).json({ error: 'Failed to fetch records by host' });
+  }
+};
 
 export const exportVisitorsToExcel = async (req, res) => {
   try {

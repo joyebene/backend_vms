@@ -20,7 +20,8 @@ import {
   addDocumentToVisitor,
   getUsers, createUser, getUserById, updateUser, deleteUser,
   getSystemSettings, updateSystemSettings,
-  getAuditLogs, getLicenses, addLicense
+  getAuditLogs, getLicenses, addLicense,
+  getByHost
 } from '../controllers/adminController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
@@ -46,6 +47,7 @@ router.post('/licenses', addLicense);
 router.get('/visitors', getAllForms);
 router.get('/visitor/:id', getFormById);
 router.get('/visits', getAllVisit);
+router.get('/visitors/host', getByHost)
 router.patch('/edit/:type/:id', editForm);
 router.patch('/updateStatus/:type/:id', updateStatus);
 router.put('/config', protect, updateAdminConfig);
