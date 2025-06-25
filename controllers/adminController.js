@@ -313,10 +313,12 @@ export const checkInVisitor = async (req, res) => {
       await visitor.save();
 
 
-      await AccessLog.create({
+     await logAccessEvent({
       userId: visitor._id,
-      userType: 'Visitor',
-      action: 'check-in',
+      name: visitor.fullName,
+      role: 'contractor',
+      status: 'granted',
+      location: 'Main Entrance',
     });
       return res.status(200).json({ message: 'Visitor checked in successfully', visitor });
     }
@@ -328,10 +330,12 @@ export const checkInVisitor = async (req, res) => {
       contractor.checkInTime = new Date();
       await contractor.save();
 
-      await AccessLog.create({
+     await logAccessEvent({
       userId: visitor._id,
-      userType: 'Contractor',
-      action: 'check-in',
+      name: visitor.fullName,
+      role: 'contractor',
+      status: 'granted',
+      location: 'Main Entrance',
     });
       return res.status(200).json({ message: 'Contractor checked in successfully', visitor: contractor });
     }
@@ -354,10 +358,12 @@ export const checkOutVisitor = async (req, res) => {
       visitor.checkOutTime = new Date();
       await visitor.save();
 
-      await AccessLog.create({
+     await logAccessEvent({
       userId: visitor._id,
-      userType: 'Visitor',
-      action: 'check-out',
+      name: visitor.fullName,
+      role: 'visitor',
+      status: 'granted',
+      location: 'Main Entrance',
     });
       return res.status(200).json({ message: 'Visitor checked out successfully', visitor });
     }
@@ -369,10 +375,12 @@ export const checkOutVisitor = async (req, res) => {
       contractor.checkOutTime = new Date();
       await contractor.save();
 
-      await AccessLog.create({
+      await logAccessEvent({
       userId: visitor._id,
-      userType: 'Contractor',
-      action: 'check-out',
+      name: visitor.fullName,
+      role: 'contractor',
+      status: 'granted',
+      location: 'Main Entrance',
     });
       return res.status(200).json({ message: 'Contractor checked out successfully', visitor: contractor });
     }
@@ -673,6 +681,7 @@ export const getAuditLogs = async (req, res) => {
 };
 
 import License from '../models/License.js';
+import { logAccessEvent } from '../utils/logAccessEvent.js';
 
 export const getLicenses = async (req, res) => {
   const licenses = await License.find();

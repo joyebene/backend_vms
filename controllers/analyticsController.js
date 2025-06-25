@@ -46,18 +46,69 @@ export const getVisitorStats = async (req, res) => {
 export const getAccessMetrics = async (req, res) => {
   try {
     const totalAccessLogs = await AccessLog.countDocuments();
-    const today = new Date().setHours(0, 0, 0, 0);
+    const successfulAccesses = await AccessLog.countDocuments({ status: 'granted' });
+    const deniedAccesses = await AccessLog.countDocuments({ status: 'denied' });
 
-    const todayAccessLogs = await AccessLog.countDocuments({
-      createdAt: { $gte: new Date(today) }
+    // Group by day (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // includes today
+
+    const accessByDay = await AccessLog.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo },
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      },
+      {
+        $project: {
+          date: '$_id',
+          count: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    // Group by location
+    const accessByLocation = await AccessLog.aggregate([
+      {
+        $group: {
+          _id: '$location',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          location: '$_id',
+          count: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    return res.json({
+      totalAccesses: totalAccessLogs,
+      successfulAccesses,
+      deniedAccesses,
+      accessesByDay: accessByDay,
+      accessesByLocation: accessByLocation
     });
-
-   return res.json({ total: totalAccessLogs, today: todayAccessLogs });
   } catch (err) {
     console.error('Access metrics error:', err);
     res.status(500).json({ error: 'Failed to fetch access metrics' });
   }
 };
+
 
 export const getTrainingMetrics = async (req, res) => {
   try {
