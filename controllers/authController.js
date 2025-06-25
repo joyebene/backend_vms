@@ -19,7 +19,7 @@ const createAccessToken = (id) => {
   console.log("Creating access token for ID:", id);
   console.log("Using JWT_SECRET:", JWT_SECRET);
   try {
-    const token = jwt.sign({ id }, JWT_SECRET, { expiresIn: '15m' });
+    const token = jwt.sign({ id }, JWT_SECRET, { expiresIn: '30m' });
     console.log("Generated access token:", token);
     return token;
   } catch (err) {

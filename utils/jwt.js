@@ -15,7 +15,7 @@ export const createAccessToken = (id) => {
   logger.debug('Creating access token', { userId: id });
 
   try {
-    const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30m' });
     logger.debug('Access token generated', { userId: id, token: token.substring(0, 20) + '...' });
     return token;
   } catch (err) {
