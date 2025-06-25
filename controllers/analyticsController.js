@@ -122,3 +122,47 @@ export const getTrainingMetrics = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch training metrics' });
   }
 };
+
+
+export const getVisitorMetrics = async (req, res) => {
+  try {
+    const visitors = await Visitor.find();
+    const contractors = await Contractor.find();
+
+    // Combine both arrays
+    const all = [...visitors, ...contractors];
+
+    // Group by day
+    const visitorsByDay = all.reduce((acc, person) => {
+      const date = new Date(person.createdAt).toISOString().split('T')[0];
+      const existing = acc.find(v => v.date === date);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        acc.push({ date, count: 1 });
+      }
+      return acc;
+    }, []);
+
+    // Group by purpose
+    const visitorsByPurpose = all.reduce((acc, person) => {
+      const purpose = person.purpose || 'Unknown';
+      const existing = acc.find(p => p.label === purpose);
+      if (existing) {
+        existing.value += 1;
+      } else {
+        acc.push({ label: purpose, value: 1 });
+      }
+      return acc;
+    }, []);
+
+    return res.json({
+      visitorsByDay,
+      visitorsByPurpose,
+    });
+  } catch (err) {
+    console.error('Combined visitor metrics error:', err);
+    res.status(500).json({ error: 'Failed to compute combined visitor metrics' });
+  }
+};
+
