@@ -23,13 +23,13 @@ import {
   getAuditLogs, getLicenses, addLicense,
   getByHost
 } from '../controllers/adminController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
+
 
 const router = express.Router();
-router.use(authenticate);
+// router.use(authenticate);
 
 
-router.get('/users', getUsers);
+router.get('/users', protect, getUsers);
 router.post('/users', createUser);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUser);

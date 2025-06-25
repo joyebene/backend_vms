@@ -104,7 +104,7 @@ export const login = async (req, res) => {
     }
 
     user.refreshToken = refreshToken;
-    user.accessToken = accessToken
+    user.accessToken = accessToken;
     await user.save();
 
     return res.status(201).json({ message: "User Logged in Successfully", data: user });
