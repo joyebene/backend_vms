@@ -19,7 +19,7 @@ export const getVisitorStats = async (req, res) => {
     const pendingContractors = await Contractor.countDocuments({ status: 'pending' });
     const approvedContractors = await Contractor.countDocuments({ status: 'approved' });
 
-    return res.json({
+    return res.status(200).json({
       visitor: {
         total: totalVisitors,
         checkedIn: checkedInVisitors,
@@ -39,7 +39,7 @@ export const getVisitorStats = async (req, res) => {
     });
   } catch (err) {
     console.error('Visitor & Contractor stats error:', err);
-    res.status(500).json({ error: 'Failed to fetch visitor/contractor stats' });
+    return res.status(500).json({ error: 'Failed to fetch visitor/contractor stats' });
   }
 };
 
