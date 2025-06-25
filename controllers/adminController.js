@@ -9,6 +9,7 @@ import QRCode from 'qrcode';
 import ExcelJS from 'exceljs';
 import Schedule from '../models/Schedule.js';
 import User from '../models/User.js';
+import AccessLog from '../models/AccessLog.js';
 
 export const getAllForms = async (req, res) => {
   try {
@@ -310,6 +311,13 @@ export const checkInVisitor = async (req, res) => {
       visitor.status = 'checked-in';
       visitor.checkInTime = new Date();
       await visitor.save();
+
+
+      await AccessLog.create({
+      userId: visitor._id,
+      userType: 'Visitor',
+      action: 'check-in',
+    });
       return res.status(200).json({ message: 'Visitor checked in successfully', visitor });
     }
 
@@ -319,6 +327,12 @@ export const checkInVisitor = async (req, res) => {
       contractor.status = 'checked-in';
       contractor.checkInTime = new Date();
       await contractor.save();
+
+      await AccessLog.create({
+      userId: visitor._id,
+      userType: 'Contractor',
+      action: 'check-in',
+    });
       return res.status(200).json({ message: 'Contractor checked in successfully', visitor: contractor });
     }
 
@@ -339,6 +353,12 @@ export const checkOutVisitor = async (req, res) => {
       visitor.status = 'checked-out';
       visitor.checkOutTime = new Date();
       await visitor.save();
+
+      await AccessLog.create({
+      userId: visitor._id,
+      userType: 'Visitor',
+      action: 'check-out',
+    });
       return res.status(200).json({ message: 'Visitor checked out successfully', visitor });
     }
 
@@ -348,6 +368,12 @@ export const checkOutVisitor = async (req, res) => {
       contractor.status = 'checked-out';
       contractor.checkOutTime = new Date();
       await contractor.save();
+
+      await AccessLog.create({
+      userId: visitor._id,
+      userType: 'Contractor',
+      action: 'check-out',
+    });
       return res.status(200).json({ message: 'Contractor checked out successfully', visitor: contractor });
     }
 
