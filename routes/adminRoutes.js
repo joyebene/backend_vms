@@ -47,7 +47,7 @@ router.post('/licenses', addLicense);
 router.get('/visitors', getAllForms);
 router.get('/visitor/:id', getFormById);
 router.get('/visits', getAllVisit);
-router.get('/visitors/host', getByHost)
+router.get('/visitors/host', protect, getByHost)
 router.patch('/edit/:type/:id', editForm);
 router.patch('/updateStatus/:type/:id', updateStatus);
 router.put('/config', protect, updateAdminConfig);

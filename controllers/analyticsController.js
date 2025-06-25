@@ -19,7 +19,7 @@ export const getVisitorStats = async (req, res) => {
     const pendingContractors = await Contractor.countDocuments({ status: 'pending' });
     const approvedContractors = await Contractor.countDocuments({ status: 'approved' });
 
-    res.json({
+    return res.json({
       visitor: {
         total: totalVisitors,
         checkedIn: checkedInVisitors,
@@ -52,7 +52,7 @@ export const getAccessMetrics = async (req, res) => {
       createdAt: { $gte: new Date(today) }
     });
 
-    res.json({ total: totalAccessLogs, today: todayAccessLogs });
+   return res.json({ total: totalAccessLogs, today: todayAccessLogs });
   } catch (err) {
     console.error('Access metrics error:', err);
     res.status(500).json({ error: 'Failed to fetch access metrics' });
@@ -65,7 +65,7 @@ export const getTrainingMetrics = async (req, res) => {
     const completed = await TrainingRecord.countDocuments({ status: 'completed' });
     const inProgress = await TrainingRecord.countDocuments({ status: 'in-progress' });
 
-    res.json({ total: totalTrainings, completed, inProgress });
+    return res.json({ total: totalTrainings, completed, inProgress });
   } catch (err) {
     console.error('Training metrics error:', err);
     res.status(500).json({ error: 'Failed to fetch training metrics' });
