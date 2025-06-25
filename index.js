@@ -19,10 +19,21 @@ connectDB();
 // ✅ Correct middleware order
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://vms-weld.vercel.app'
+];
+
 app.use(cors({
-  origin: 'https://vms-weld.vercel.app/',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
 
 // ✅ Routes
 app.use('/api/auth', authRoutes);
