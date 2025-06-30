@@ -80,6 +80,8 @@ export const submitContractorForm = async (req, res) => {
       agreed, hazards, ppe, pics, documents,
     } = req.body;
 
+    console.log(pics)
+
     // Basic validation
     if (!email || !firstName || !visitStartDate) {
       return res.status(400).json({ error: 'Required fields missing' });
