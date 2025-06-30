@@ -29,7 +29,7 @@ const router = express.Router();
 // router.use(authenticate);
 
 
-router.get('/users', protect, getUsers);
+router.get('/users', getUsers);
 router.post('/users', createUser);
 router.get('/users/:id', getUserById);
 router.put('/users/:id', updateUser);
