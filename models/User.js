@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, required: true },
 
     department: { type: String },
+    siteLocation: { type: String },
+    meetingLocation: { type: String },
     isActive: { type: Boolean, default: true },
 
     // Reset password
