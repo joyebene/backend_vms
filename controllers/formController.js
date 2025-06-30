@@ -7,7 +7,45 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 // SUBMIT VISITOR FORM
 export const submitVisitorForm = async (req, res) => {
   try {
-    const visitor = await Visitor.create(req.body);
+     let {
+      firstName, lastName, phone, email,
+      visitorCategory, siteLocation, department, hostEmployee,
+      meetingLocation, visitStartDate, visitEndDate, purpose,
+      agreed, pics
+    } = req.body;
+
+    // Basic validation
+    if (!email || !firstName || !visitStartDate) {
+      return res.status(400).json({ error: 'Required fields missing' });
+    }
+
+      // Upload profile picture
+    let uploadedPic = null;
+    if (pics) {
+      try {
+        uploadedPic = await uploadToCloudinary(pics, 'visitor/profile_pics');
+      } catch (error) {
+        console.error('Profile pic upload failed:', error);
+      }
+    }
+
+    // Create contractor record
+    const visitor = await Visitor.create({
+      firstName,
+      lastName,
+      phone,
+      email,
+      visitorCategory,
+      siteLocation,
+      department,
+      hostEmployee,
+      meetingLocation,
+      visitStartDate,
+      visitEndDate,
+      purpose,
+      agreed,
+      pics: uploadedPic?.url || null,
+    });
 
     await sendEmail({
       to: visitor.email,

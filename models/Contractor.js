@@ -10,7 +10,7 @@ const contractorSchema = new mongoose.Schema({
   name: { type: String },
   uploadedAt: { type: Date, default: Date.now }
 },
-
+pics: String,
 
   visitorCategory: { type: String, enum: ['contractor', 'visitor'], required: true, default: 'contractor' },
   siteLocation: { type: String, required: true },
