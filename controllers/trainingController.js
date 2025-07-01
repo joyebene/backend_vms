@@ -1,6 +1,7 @@
 import Training from '../models/Training.js';
 import Enrollment from '../models/Enrollment.js';
 import Certificate from '../models/Certificate.js';
+import Contractor from '../models/Contractor.js';
 
 // GET /training/:id
 export const getTrainingById = async (req, res) => {
@@ -58,31 +59,27 @@ export const getTrainingStatus = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-};
+}; 
 
 // POST /training/submit
 export const submitTraining = async (req, res) => {
-  const { visitorId, trainingId, answers } = req.body;
+  const { contractorId, score } = req.body;
+
   try {
-    const training = await Training.findById(trainingId);
-    if (!training) return res.status(404).json({ message: 'Training not found' });
+    const contractor = await Contractor.findById(contractorId);
+    if (!contractor) return res.status(404).json({ message: 'Contractor not found' });
 
-    const enrollment = await Enrollment.findOne({ visitorId, trainingId });
-    if (!enrollment) return res.status(400).json({ message: 'Not enrolled' });
+    contractor.trainingCompleted = true;
+    contractor.score = score;
+    await contractor.save();
 
-    const correct = training.quizzes.map(q => q.answer);
-    const score = answers.reduce((sum, ans, i) => sum + (ans === correct[i] ? 1 : 0), 0);
-
-    enrollment.answers = answers;
-    enrollment.score = score;
-    enrollment.completed = true;
-    await enrollment.save();
-
-    res.json({ message: 'Training submitted', score });
+    res.json({ message: 'Training submitted successfully', score });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error submitting training:', err);
+    res.status(500).json({ message: 'Failed to submit training' });
   }
 };
+
 
 // GET /training/certificates/:enrollmentId
 export const generateCertificate = async (req, res) => {

@@ -23,6 +23,7 @@ pics: String,
   visitEndDate: { type: Date, required: false },
 
   trainingCompleted: Boolean,
+  score: Number,
 
   purpose: { type: String, required: true },
   agreed: String,
