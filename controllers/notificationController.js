@@ -1,5 +1,5 @@
 // controllers/notificationController.ts
-import Notification from '../models/Notification';
+import Notification from '../models/Notification.js';
 import NotificationSettings from '../models/NotificationSettings';
 
 // Send to Visitor
