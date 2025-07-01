@@ -44,7 +44,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
-api.use('/api/notifications', notificationRoutes)
+app.use('/api/notifications', notificationRoutes)
 
 // ✅ Server
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
