@@ -41,7 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/forms', formRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/devices', deviceRoutes);
-app.use('/api', trainingRoutes);
+app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // ✅ Server

@@ -12,16 +12,16 @@ import {
 
 const router = express.Router();
 
-router.get('/training/:id', getTrainingById);
-router.put('/training/:id', updateTraining);
-router.delete('/training/:id', deleteTraining);
+router.get('/:id', getTrainingById);
+router.put('/:id', updateTraining);
+router.delete('/:id', deleteTraining);
 
-router.post('/training/enrollments', enrollVisitor);
-router.get('/training/enrollments/visitor/:visitorId', getTrainingStatus);
+router.post('/enrollments', enrollVisitor);
+router.get('/enrollments/visitor/:visitorId', getTrainingStatus);
 
-router.post('/training/submit', submitTraining);
-router.get('/training/certificates/:enrollmentId', generateCertificate);
-router.patch('/trainings/:id/toggle', toggleTrainingStatus);
+router.post('/submit', submitTraining);
+router.get('/certificates/:enrollmentId', generateCertificate);
+router.patch('/:id/toggle', toggleTrainingStatus);
 
 
 export default router;
