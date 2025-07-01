@@ -7,7 +7,8 @@ import authRoutes from './routes/authRoutes.js';
 import connectDB from './config/db.js';
 import deviceRoutes from './routes/deviceRoutes.js';
 import trainingRoutes from "./routes/trainingRoutes.js";
-import analyticsRoutes from "./routes/analyticsRoutes.js"
+import analyticsRoutes from "./routes/analyticsRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
+api.use('/api/notifications', notificationRoutes)
 
 // ✅ Server
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
