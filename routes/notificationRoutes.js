@@ -7,14 +7,14 @@ import {
   getNotificationSettings,
   updateNotificationSettings,
 } from '../controllers/notificationController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/visitor', authMiddleware, sendVisitorNotification);
-router.post('/host', authMiddleware, sendHostNotification);
-router.get('/history', authMiddleware, getNotificationHistory);
-router.get('/settings', authMiddleware, getNotificationSettings);
-router.put('/settings', authMiddleware, updateNotificationSettings);
+router.post('/visitor', protect, sendVisitorNotification);
+router.post('/host', protect, sendHostNotification);
+router.get('/history', protect, getNotificationHistory);
+router.get('/settings', protect, getNotificationSettings);
+router.put('/settings', protect, updateNotificationSettings);
 
 export default router;
