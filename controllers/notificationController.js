@@ -1,6 +1,6 @@
 // controllers/notificationController.ts
 import Notification from '../models/Notification.js';
-import NotificationSettings from '../models/NotificationSettings';
+import NotificationSettings from '../models/NotificationSettings.js';
 
 // Send to Visitor
 export const sendVisitorNotification = async (req, res) => {

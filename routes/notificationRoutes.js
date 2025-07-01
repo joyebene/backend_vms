@@ -6,7 +6,7 @@ import {
   getNotificationHistory,
   getNotificationSettings,
   updateNotificationSettings,
-} from '../controllers/notificationController';
+} from '../controllers/notificationController.js';
 import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
