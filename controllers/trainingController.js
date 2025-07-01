@@ -99,3 +99,19 @@ export const generateCertificate = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// PATCH /trainings/:id/toggle
+export const toggleTrainingStatus = async (req, res) => {
+  try {
+    const training = await Training.findById(req.params.id);
+    if (!training) return res.status(404).json({ message: 'Training not found' });
+
+    training.isActive = !training.isActive;
+    await training.save();
+
+    res.json({ message: 'Training status updated', training });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update status' });
+  }
+};

@@ -7,6 +7,7 @@ import {
   enrollVisitor,
   getTrainingStatus,
   generateCertificate,
+  toggleTrainingStatus,
 } from '../controllers/trainingController.js';
 
 const router = express.Router();
@@ -20,5 +21,7 @@ router.get('/training/enrollments/visitor/:visitorId', getTrainingStatus);
 
 router.post('/training/submit', submitTraining);
 router.get('/training/certificates/:enrollmentId', generateCertificate);
+router.patch('/trainings/:id/toggle', toggleTrainingStatus);
+
 
 export default router;
