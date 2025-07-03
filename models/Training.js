@@ -12,7 +12,7 @@ const trainingSchema = new mongoose.Schema({
   type: { type: String, enum: ['safety', 'security', 'procedure', 'other'], required: true },
   content: { type: String, required: true },
   questions: [questionSchema],
-videos: [{
+  videos: [{
   name: { type: String, required: false },
   url: { type: String, required: false }
 }],
@@ -22,7 +22,8 @@ books: [{
 }],
 
   requiredScore: { type: Number, default: 70 },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  
 }, { timestamps: true });
 
 export default mongoose.models.Training || mongoose.model('Training', trainingSchema);

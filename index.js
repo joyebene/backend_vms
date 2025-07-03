@@ -9,6 +9,10 @@ import deviceRoutes from './routes/deviceRoutes.js';
 import trainingRoutes from "./routes/trainingRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import groupRoutes from "./routes/groupRoutes.js";
+import checkGroupAccess from "./middleware/checkAccessGroup.js"
+import { protect } from "./middleware/authMiddleware.js";
+
 
 
 dotenv.config();
@@ -44,7 +48,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/notifications', notificationRoutes)
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/groups', groupRoutes);
+
+
+app.get('/api/group/secure-data', protect, checkGroupAccess(['Group A']), (req, res) => {
+  res.json({ message: 'You have access' });
+});
+
 
 // ✅ Server
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));

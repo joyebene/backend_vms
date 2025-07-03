@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
     phoneNumber: {type: String, required: true},
     role: { type: String, required: true },
 
+    groups: [{ type: String }],
+
     department: { type: String },
     siteLocation: { type: String },
     meetingLocation: { type: String },
