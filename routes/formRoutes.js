@@ -14,7 +14,7 @@ router.get('/forms/trainings', getAllTrainings);
 // routes/visitor.js
 router.post('/:id/complete-training', async (req, res) => {
   const { id } = req.params;
-  const { trainingId, score, tile } = req.body;
+  const { trainingId, score, title } = req.body;
 
   const contractor = await Contractor.findById(id);
   if (!contractor) return res.status(404).json({ error: 'Contractor not found' });
