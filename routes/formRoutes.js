@@ -25,7 +25,7 @@ router.post('/:id/complete-training', async (req, res) => {
       trainingId,
       completedAt: new Date(),
       score,
-      courseTitle : title
+      title
     });
     await contractor.save();
   }
