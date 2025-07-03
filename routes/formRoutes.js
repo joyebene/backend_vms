@@ -35,7 +35,7 @@ router.post('/:id/complete-training', async (req, res) => {
 router.get('/:id/completed-trainings', async (req, res) => {
   const { id } = req.params;
   const contractor = await Contractor.findById(id);
-  if (!visitor) return res.status(404).json({ error: 'Contractor not found' });
+  if (!contractor) return res.status(404).json({ error: 'Contractor not found' });
 
   res.json(contractor.completedTrainings || []);
 });
