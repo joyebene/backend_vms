@@ -24,6 +24,18 @@ pics: String,
 
   trainingCompleted: Boolean,
   score: Number,
+  
+  completedTrainings: [
+  {
+    trainingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Training',
+    },
+    completedAt: Date,
+    score: Number, // Optional: for quizzes
+  }
+],
+
 
   purpose: { type: String, required: true },
   agreed: String,
