@@ -31,6 +31,7 @@ pics: String,
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Training',
     },
+    courseTitle: String,
     completedAt: Date,
     score: Number, // Optional: for quizzes
   }
