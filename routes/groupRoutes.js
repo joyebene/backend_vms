@@ -42,4 +42,15 @@ router.get('/user/:id/groups', protect, async (req, res) => {
   res.json({ groups: user.groups });
 });
 
+// GET /api/admin/groups/:groupName/members
+router.get('/:groupName/members', protect, async (req, res) => {
+  try {
+    const members = await User.find({ groups: req.params.groupName });
+    res.json(members);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get group members' });
+  }
+});
+
+
 export default router;
