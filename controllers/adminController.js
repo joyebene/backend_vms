@@ -632,10 +632,26 @@ export const getUsers = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-  const user = new User(req.body);
-  await user.save();
-  res.status(201).json(user);
+  try {
+    const { email } = req.body;
+
+    // Check if user with the email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Email already exists' });
+    }
+
+    // Create and save new user
+    const user = new User(req.body);
+    await user.save();
+
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
+
 
 
 export const getUserById = async (req, res) => {
