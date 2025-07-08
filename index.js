@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 // Allowlisted domains for CORS
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://vms-6i1o.onrender.com/',
+  'https://vms-6i1o.onrender.com',
   'https://vms-weld.vercel.app'
 ];
 
